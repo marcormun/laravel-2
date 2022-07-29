@@ -57,4 +57,98 @@ class TaskController extends Controller
             );
         }
     }
+    
+    public function getTaskById($id){
+        try {
+            Log::info('Getting task with id: '.$id);
+            $userId = auth()->user()->id;
+            $task = Task::where('user_id','=',$userId)->find($id);
+            if(!$task){
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Task not found'
+                    ]
+                );
+            }
+            return response()->json(
+                [
+                    'success' => true,
+                    'message' => 'Task retrieved',
+                    'task' => $task
+                ]
+            );
+        }catch(\Exception $exception){
+            Log::error('Error getting task: '.$exception->getMessage());
+            return response()->json(
+                [
+                    'success' => true,
+                    'message' => 'Error getting task'
+                ]
+            );
+        }
+    }
+    public function deleteTaskById($id){
+        try{
+            Log::info('Deleting task with id: '.$id);
+            $userId = auth()->user()->id;
+            $task = Task::where('user_id','=',$userId)->find($id);
+            if(!$task){
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Task not found'
+                    ]
+                );
+            }
+            $task->delete();
+            return response()->json(
+                [
+                    'success' => true,
+                    'message' => 'Task deleted'
+                ]
+            );
+        }catch(\Exception $exception){
+            Log::error('Error deleting task: '.$exception->getMessage());
+            return response()->json(
+                [
+                    'success' => true,
+                    'message' => 'Error deleting task'
+                ]
+            );
+        }
+    }
+
+    public function updateTask($id, Request $request) {
+        try {
+            Log::info('Updating task with id: '.$id);
+            $userId = auth()->user()->id;
+            $task = Task::where('user_id','=',$userId)->find($id);
+            if(!$task){
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Task not found'
+                    ]
+                );
+            }
+            $task->title = $request->input('title');
+            $task->save();
+            return response()->json(
+                [
+                    'success' => true,
+                    'message' => 'Task updated',
+                    'task' => $task
+                ]
+            );
+        }catch(\Exception $exception){
+            Log::error('Error updating task: '.$exception->getMessage());
+            return response()->json(
+                [
+                    'success' => true,
+                    'message' => 'Error updating task'
+                ]
+            );
+        }
+    }
 }
